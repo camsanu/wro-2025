@@ -1,4 +1,3 @@
-#include <Wire.h>
 #include <Servo.h>
 
 Servo myservo;
@@ -8,10 +7,10 @@ Servo myservo;
 #define MotFwd2  4  // Motor 2 Forward pin
 #define MotRev2  5 // Motor 2 Reverse pin
 
-const int trigPin = 9;
+const int trigPin = 8;
 const int echoPin_1 = 6; // right sensor echo
 const int echoPin_2 = 7; // left sensor echo
-const int echoPin_3 = 8; // front sensor echo
+const int echoPin_3 = 9; // front sensor echo
 
 int n = 0; // amount of times loop has executed
 int b = 10; // amount of times loop must execute before parking
@@ -54,8 +53,6 @@ void stop(){
   digitalWrite(MotFwd2, LOW); 
   digitalWrite(MotRev2, LOW);
 }
-
-void swerve(){}
 
 void start(){ // exit parking sequence
   Serial.print("Start");
