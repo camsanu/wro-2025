@@ -12,11 +12,10 @@ const int echoPin_1 = 6; // right sensor echo
 const int echoPin_2 = 7; // left sensor echo
 const int echoPin_3 = 9; // front sensor echo
 
-int n = 0; // amount of times loop has executed
-int b = 10; // amount of times loop must execute before parking
-bool parkEd = false; // car hasn't parked yet
-bool lane; // stores what lane the car is running in
-int turns = 0;
+int fDistance; // front
+int lDistance; // left 
+int rDistance; // right
+int turns = 0; // number of corners turned
 
 int numReadings = 3; // number of samples before printing
 
@@ -32,7 +31,19 @@ void setup() {
   pinMode(echoPin_3, INPUT);
   myservo.attach(10); // servo pin
   Serial.begin(9600); // start serial comunication
+  myservo.write(180);
+  Serial.println("Servo check");
+  delay(100);
   myservo.write(103); // reset servo position
+  Serial.println("Servo reset");
+  for(int i = 0; i < 10; i++){
+    forward();
+    Serial.println("Forward check");
+    }
+  for(int i = 0; i < 10; i++){
+    reverse();
+    Serial.println("reverse check");
+    }
 }
 
 void forward(){
@@ -49,7 +60,7 @@ void reverse(){
   digitalWrite(MotRev2, HIGH);
 }
 
-void stop(){
+void dead(){
   digitalWrite(MotFwd1, LOW); 
   digitalWrite(MotRev1, LOW);
   digitalWrite(MotFwd2, LOW); 
@@ -74,39 +85,52 @@ long getDistance(int echoPin){ // captures distance for an n number of times and
   }
 
 void endP() { // ends the route
-  stop();
+  dead();
+  Serial.println("Over");
   while (true) {
   }
 }
 
 void loop() {
-  if(getDistance(echoPin_2)>getDistance(echoPin_1)){ // checks if the car is on the left lane or right lane
-    lane = false; // right lane
-  } else{
-    lane = true; // left lane
-  }
+  fDistance = getDistance(echoPin_3);
+  lDistance = getDistance(echoPin_2); 
+  rDistance = getDistance(echoPin_1);
+  
+  Serial.print("FLR: ");
+  Serial.print(fDistance);
+  Serial.print(" ");
+  Serial.print(lDistance);
+  Serial.print(" ");
+  Serial.println(rDistance);
 
-  if(getDistance(echoPin_3)>=100){ // checks if there is space to move forward
-	  forward();
-  }
+  
+  forward();
+  Serial.println("Forward");
+  
 
   if(getDistance(echoPin_2)>getDistance(echoPin_1) && getDistance(echoPin_3)<100){ // checks if there is space to turn left and no more space to move forward
-	  myservo.write(0); // turns left
-	  if(getDistance(echoPin_2)<100){ // checks if there  is no more space to turn left
+    myservo.write(0); // turns left
+    delay(500);
+    if(getDistance(echoPin_2)<100){ // checks if there  is no more space to turn left
       myservo.write(103); // reset servo position
       turns++; // counts a turn
+      Serial.println("Turned");
+      
     }
   } 
   
   if(getDistance(echoPin_2)<getDistance(echoPin_1) && getDistance(echoPin_3)<100){ // checks if there is space to turn right
     myservo.write(180); // turns right
+    delay(500);
     if(getDistance(echoPin_1)<100){ // checks if there is no more space to turn right
       myservo.write(103); // reset servo position
       turns++;
+      Serial.println("Turned");
     }
   }
   
-  if(turns=4){
+  if(turns==4){
+    delay(500);
     endP();
   }
 }
