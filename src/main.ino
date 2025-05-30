@@ -15,6 +15,8 @@ const int echoPin_3 = 9; // front sensor echo
 int n = 0; // amount of times loop has executed
 int b = 10; // amount of times loop must execute before parking
 bool parkEd = false; // car hasn't parked yet
+bool lane; // stores what lane the car is running in
+int turns = 0;
 
 int numReadings = 3; // number of samples before printing
 
@@ -28,9 +30,9 @@ void setup() {
   pinMode(echoPin_1, INPUT);
   pinMode(echoPin_2, INPUT);  
   pinMode(echoPin_3, INPUT);
-  myservo.attach(5); // servo pin
+  myservo.attach(10); // servo pin
   Serial.begin(9600); // start serial comunication
-  myservo.write(90); // reset servo position
+  myservo.write(103); // reset servo position
 }
 
 void forward(){
@@ -54,55 +56,6 @@ void stop(){
   digitalWrite(MotRev2, LOW);
 }
 
-void start(){ // exit parking sequence
-  Serial.print("Start");
-  myservo.write(180);
-  for(int i = 0; i <= 10; i++){ //
-    forward();
-    Serial.print("Forward");
-    stop();
-  }
-  delay(100);
-  myservo.write(0);
-  for(int i = 0; i <= 10; i++){ //
-    reverse();
-    Serial.print("Reverse"); 
-    stop();
-  }
-  delay(100);
-  myservo.write(90);
-}
-
-void loop() {
-  n++;
-  Serial.println(n);
-  if(n >= b && !parkEd){
-    park();
-    parkEd = true;
-  }
-
-  forward();
-
-  if(getDistance(echoPin_3)<15 && getDistance(echoPin_1)<5){
-    myservo.write(180);
-    delay(100);
-    myservo.write(90);
-  }
-
-  if(getDistance(echoPin_3)<30 && getDistance(echoPin_3)>15 && getDistance(echoPin_1)>5){
-    myservo.write(180);
-    delay(200);
-    myservo.write(90);
-  }
-
-  Serial.print("Distances FRL: ");
-  Serial.print(getDistance(echoPin_3)); // distance from the front sensor
-  Serial.print(" ");
-  Serial.print(getDistance(echoPin_2)); // distance from the right sensor
-  Serial.print(" ");
-  Serial.println(getDistance(echoPin_1)); // distance from the left sensor
-}
-
 long getDistance(int echoPin){ // captures distance for an n number of times and averages them for more consistent output
     long duration;
     int sum = 0;
@@ -120,29 +73,40 @@ long getDistance(int echoPin){ // captures distance for an n number of times and
     return sum / numReadings;
   }
 
-void park(){ // parking sequence
-  Serial.print("Parking Start");
-  myservo.write(0);
-  for(int i = 0; i <= 10; i++){ //
-    reverse();
-    Serial.print("Reverse");
-    stop();
+void endP() { // ends the route
+  stop();
+  while (true) {
   }
-  delay(100);
-  myservo.write(180);
-  for(int i = 0; i <= 10; i++){ //
-    forward();
-    Serial.print("Forward");
-    stop();
-  }
-  delay(100);
-  myservo.write(90);
-  Serial.print("Parking End");
-  n = 0;
-  exit();    
 }
 
-void exit() { 
-  while (true) {
+void loop() {
+  if(getDistance(echoPin_2)>getDistance(echoPin_1)){ // checks if the car is on the left lane or right lane
+    lane = false; // right lane
+  } else{
+    lane = true; // left lane
+  }
+
+  if(getDistance(echoPin_3)>=100){ // checks if there is space to move forward
+	  forward();
+  }
+
+  if(getDistance(echoPin_2)>getDistance(echoPin_1) && getDistance(echoPin_3)<100){ // checks if there is space to turn left and no more space to move forward
+	  myservo.write(0); // turns left
+	  if(getDistance(echoPin_2)<100){ // checks if there  is no more space to turn left
+      myservo.write(103); // reset servo position
+      turns++; // counts a turn
+    }
+  } 
+  
+  if(getDistance(echoPin_2)<getDistance(echoPin_1) && getDistance(echoPin_3)<100){ // checks if there is space to turn right
+    myservo.write(180); // turns right
+    if(getDistance(echoPin_1)<100){ // checks if there is no more space to turn right
+      myservo.write(103); // reset servo position
+      turns++;
+    }
+  }
+  
+  if(turns=4){
+    endP();
   }
 }
