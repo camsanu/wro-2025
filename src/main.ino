@@ -36,14 +36,6 @@ void setup() {
   delay(100);
   myservo.write(103); // reset servo position
   Serial.println("Servo reset");
-  for(int i = 0; i < 10; i++){
-    forward();
-    Serial.println("Forward check");
-    }
-  for(int i = 0; i < 10; i++){
-    reverse();
-    Serial.println("reverse check");
-    }
 }
 
 void forward(){
@@ -103,26 +95,41 @@ void loop() {
   Serial.print(" ");
   Serial.println(rDistance);
 
-  
   forward();
   Serial.println("Forward");
+
+  while(getDistance(echoPin_2)== getDistance(echoPin_1)){
+    myservo.write(103);
+    }
   
+  while(getDistance(echoPin_2) != getDistance(echoPin_1) && getDistance(echoPin_3)>100){
+    if(getDistance(echoPin_2)>getDistance(echoPin_1)){
+      myservo.write(123);
+      Serial.println("Correcting Left");
+      }
+    else{
+      myservo.write(83);
+      Serial.println("Correcting Right");
+      }
+  }
 
   if(getDistance(echoPin_2)>getDistance(echoPin_1) && getDistance(echoPin_3)<100){ // checks if there is space to turn left and no more space to move forward
     myservo.write(0); // turns left
-    delay(500);
+    delay(700);
     if(getDistance(echoPin_2)<100){ // checks if there  is no more space to turn left
+      delay(100);
       myservo.write(103); // reset servo position
       turns++; // counts a turn
       Serial.println("Turned");
       
     }
-  } 
-  
+  }
+
   if(getDistance(echoPin_2)<getDistance(echoPin_1) && getDistance(echoPin_3)<100){ // checks if there is space to turn right
-    myservo.write(180); // turns right
-    delay(500);
+    myservo.write(0); // turns right
+    delay(700);
     if(getDistance(echoPin_1)<100){ // checks if there is no more space to turn right
+      delay(100);
       myservo.write(103); // reset servo position
       turns++;
       Serial.println("Turned");
