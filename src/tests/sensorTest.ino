@@ -11,6 +11,7 @@ int rDistance; // right
 int turns = 0; // number of corners turned
 
 int numReadings = 3; // number of samples before printing
+bool pushEd = false;
 
 
 
@@ -44,8 +45,10 @@ long getDistance(int echoPin){ // captures distance for an n number of times and
 
 
 void loop() {
-  // Leer el botón (LOW = presionado, por INPUT_PULLUP)
   if (digitalRead(buttonPin) == LOW) {
+    pushEd = true;
+  }
+  if (pushEd == true) {
     // Medir distancias con cada sensor
     fDistance = getDistance(echoPin_3); // collect distances
     lDistance = getDistance(echoPin_2); 
@@ -61,4 +64,3 @@ void loop() {
     Serial.println("Forward");
   }
 }
-
