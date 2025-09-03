@@ -1,9 +1,7 @@
 #include <Servo.h>
 
-#define motFwd1  2
-#define motRev1  3
-#define motFwd2  4
-#define motRev2  5
+#define motFwd  2
+#define motRev  3
 
 Servo myservo;
 
@@ -12,6 +10,11 @@ const int buttonPin = 11;
 
 int lDistance, rDistance, fDistance;
 int corners = 0; // amount of corners turned so far
+int Gp = 1; // proportional gain
+int Gd = 1; // derivative gain
+int Gi = 1; // integral gain
+static int prevErr = 0; // store previous for derivative
+static int integ = 0; // store integral
 
 int numReadings = 3; // samples
 
@@ -54,24 +57,18 @@ void printDistances(){
 
 // motor control
 void fwd(){
-  digitalWrite(motFwd1, HIGH); 
-  digitalWrite(motRev1, LOW);
-  digitalWrite(motFwd2, HIGH); 
-  digitalWrite(motRev2, LOW);
+  digitalWrite(motFwd, HIGH); 
+  digitalWrite(motRev, LOW);
 }
 
 void rev(){
-  digitalWrite(motFwd1, LOW); 
-  digitalWrite(motRev1, HIGH);
-  digitalWrite(motFwd2, LOW); 
-  digitalWrite(motRev2, HIGH);
+  digitalWrite(motFwd, LOW); 
+  digitalWrite(motRev, HIGH);
 }
 
 void dead(){
-  digitalWrite(motFwd1, LOW); 
-  digitalWrite(motRev1, LOW);
-  digitalWrite(motFwd2, LOW); 
-  digitalWrite(motRev2, LOW);
+  digitalWrite(motFwd, LOW); 
+  digitalWrite(motRev, LOW);
 }
 
 void endP() { // route natural end
@@ -109,7 +106,7 @@ void lTurn(){ // turn left corner
   if(lDistance < 100){
     myservo.write(90);
     corners++;
-    Serial.println("Corner");
+    Serial.println("Turned Left");
   }
 }
 
@@ -119,28 +116,28 @@ void rTurn(){ // turn right corner
   if(rDistance < 100){
     myservo.write(90);
     corners++;
-    Serial.println("Corner");
+    Serial.println("Turned Right");
   }
 }
 
 // setup function
 
 void setup() {
-  pinMode(motFwd1, OUTPUT); 
-  pinMode(motFwd2, OUTPUT);
-  pinMode(motRev1, OUTPUT); 
-  pinMode(motRev2, OUTPUT);
+  pinMode(motFwd, OUTPUT);
+  pinMode(motRev, OUTPUT);
 
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin_f, INPUT);
   pinMode(echoPin_r, INPUT);  
   pinMode(echoPin_l, INPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
 
   myservo.attach(10);
   Serial.begin(9600);
 
   mCalib();
   sCalib();
+  dead();
 }
 
 // main loop
@@ -149,12 +146,13 @@ void loop() {
   if(digitalRead(buttonPin) == LOW){ // save button state
     pushEd = true;
     pushEs++;
-    if (pushEs == 2) { // reset button state
-      pushEd = false; 
+    Serial.println("Started");
+    if(pushEs == 2){ // kill switch
+      pushEd = false;
     }
   }
 
-  while(pushEd == true){
+  if(pushEd == true){
     fwd();
     Serial.println("Forward");
     saveDistances();
@@ -165,12 +163,19 @@ void loop() {
     }
   
     while(lDistance != rDistance && fDistance>100 && (red && green == false)){ // overshoot
+      int err = lDistance - rDistance;
+      int deriv = err - prevErr;
+      int servoAngle = 90 + (Gp * err) + (Gd * deriv) + (Gi * integ); // proportional + derivative control
+      prevErr = err;
+      integ += err;
+      servoAngle = constrain(servoAngle, 50, 130); // limit to safe range
+      integ = constrain(integ, -100, 100); // limit integral windup
       if(lDistance > rDistance){
-        myservo.write(110);
+        myservo.write(servoAngle);
         Serial.println("Left Overshoot");
       }
       else if(rDistance > lDistance){
-        myservo.write(70);
+        myservo.write(servoAngle);
         Serial.println("Right Overshoot");
       }
     }
@@ -188,5 +193,9 @@ void loop() {
       delay(800);
       endP();
     }
+  } 
+  if(pushEd == false && pushEs < 0){ // stop motors
+    dead();
+    Serial.println("Killed");
   }
 }
