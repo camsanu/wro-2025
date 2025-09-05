@@ -1,12 +1,12 @@
 #include <Servo.h>
 
-#define motFwd  2
-#define motRev  3
+#define motFwd  7
+#define motRev  6
 
 Servo myservo;
 
-const int trigPin = 8, echoPin_r = 6, echoPin_l = 7, echoPin_f = 9; // ultrasonic pins
-const int buttonPin = 11;
+const int trigPin = 12, echoPin_f = 11, echoPin_r = 10, echoPin_l = 9; // ultrasonic pins
+const int buttonPin = 8;
 
 int lDistance, rDistance, fDistance;
 int corners = 0; // amount of corners turned so far
@@ -132,7 +132,7 @@ void setup() {
   pinMode(echoPin_l, INPUT);
   pinMode(buttonPin, INPUT_PULLUP);
 
-  myservo.attach(10);
+  myservo.attach(13);
   Serial.begin(9600);
 
   mCalib();
@@ -158,11 +158,11 @@ void loop() {
     saveDistances();
     printDistances();
 
-    while(lDistance == rDistance){
+    if(lDistance == rDistance){
       myservo.write(90); // straight
     }
   
-    while(lDistance != rDistance && fDistance>100 && (red && green == false)){ // overshoot
+    if(lDistance != rDistance && fDistance>100 && (red && green == false)){ // overshoot
       int err = lDistance - rDistance;
       int deriv = err - prevErr;
       int servoAngle = 90 + (Gp * err) + (Gd * deriv) + (Gi * integ); // proportional + derivative control
@@ -194,8 +194,10 @@ void loop() {
       endP();
     }
   } 
-  if(pushEd == false && pushEs < 0){ // stop motors
+  if(pushEd == false && pushEs > 1){
     dead();
+    myservo.write(90);
     Serial.println("Killed");
+    for(;;){}
   }
 }
