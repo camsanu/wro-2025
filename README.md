@@ -4,10 +4,10 @@ Engineering materials
 This repository contains all engineering materials for team Wired Wizards, from CETYS Universidad campus Mexicali team Sentinel Fox Engineering, compeeting on WRO Future Engineers 2025 season, soon to go to the 2025 Mexican National.
 
 # Team Members
+`Coach` Leonardo Médina
 * Yumian Rodríguez
 * Ahn Salgado
 * Constanza Sandoval
-* `Coach` Leonardo Médina
 
 ## Content
 
@@ -34,5 +34,6 @@ _This part must be filled by participants with the technical clarifications abou
 | L298N Motor Driver | 1  |
 | Hobby Gearmotor  | 1  |
 | HC-SR04 Ultrasonic Sensor  | 3  |
+| Servo Motor  | 1  |
 
 ## Mechanism
