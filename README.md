@@ -26,17 +26,16 @@ _This part must be filled by participants with the technical clarifications abou
 
 ## Electronic components
 
-| Component | Quantity |
-| --- | | --- |
 | Arduino Uno | | 1 |
 | Raspberry Pi 3 | | 1 |
 | Raspberry Pi Camera Module 2 | | 1 | 
 | L928N Motor Driver | | 1 |
 | Hobby Gearmotor | | 1 |
 | HC-SR04 Ultrasonic Sensor | | 3 |
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+
+| Component  | Quantity |
+| --- | --- |
+| Arduino Uno  | 1  |
+| Raspberry Pi 3  | 1  |
 
 ## Mechanism
