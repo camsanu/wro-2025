@@ -1,7 +1,13 @@
 Engineering materials
 ====
 
-This repository contains engineering materials of a self-driven vehicle's model participating in the WRO Future Engineers competition in the season 2025.
+This repository contains all engineering materials for team Wired Wizards, from CETYS Universidad campus Mexicali team Sentinel Fox Engineering, compeeting on WRO Future Engineers 2025 season, soon to go to the 2025 Mexican National.
+
+# Team Members
+* Yumian Rodríguez
+* Ahn Salgado
+* Constanza Sandoval
+* `Coach` Leonardo Médina
 
 ## Content
 
@@ -17,3 +23,16 @@ This repository contains engineering materials of a self-driven vehicle's model 
 ## Introduction
 
 _This part must be filled by participants with the technical clarifications about the code: which modules the code consists of, how they are related to the electromechanical components of the vehicle, and what is the process to build/compile/upload the code to the vehicle’s controllers._
+
+## Electronic components
+
+| Component | Quantity |
+| --- | | --- |
+| Arduino Uno | | 1 |
+| Raspberry Pi 3 | | 1 |
+| Raspberry Pi Camera Module 2 | | 1 | 
+| L928N Motor Driver | | 1 |
+| Hobby Gearmotor | | 1 |
+| HC-SR04 Ultrasonic Sensor | | 3 |
+
+## Mechanism
