@@ -15,7 +15,7 @@ const int sMin = 50, sMax = 130, sCenter = 90; // servo limits
 const int threshold = 100; // distance threshold
 
 int lDistance, rDistance, fDistance;
-int corners = 0; // corners turned so far
+int corners = 0, laps = 0; // corners turned so far
 float Gp = 0.6; // proportional gain
 float Gd = 1; // derivative gain
 float Gi = 0.02; // integral gain
@@ -219,9 +219,14 @@ void loop() {
         rTurn();
         integ = 0;
       }
-    } 
+    }
+    
+    if(corners == 4){
+      laps++;
+      corners = 0;
+    }
   
-    if(corners==4 && (!red && !green)){
+    if(laps==3 && (!red && !green)){
       static unsigned long shutStart = 0; // when the shut down started
       static bool shutting = false;
       if(!shutting){
