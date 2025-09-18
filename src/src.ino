@@ -10,9 +10,9 @@
 
 Servo myservo;
 
-const int trigPin = 12, echoPin_f = 11, echoPin_r = 10, echoPin_l = 9; // ultrasonic pins
+const int trigPin = 12, echoPin_f = 5, echoPin_r = 10, echoPin_l = 9; // ultrasonic pins
 const int buttonPin = 8;
-const int sMin = 50, sMax = 130, sCenter = 90; // servo limits
+const int sMin = 80, sMax = 180, sCenter = 130; // servo limits
 const int threshold = 100; // distance threshold
 
 int lDistance, rDistance, fDistance;
@@ -162,7 +162,7 @@ void setup() {
   pinMode(echoPin_l, INPUT);
   pinMode(buttonPin, INPUT_PULLUP);
 
-  myservo.attach(13);
+  myservo.attach(6);
   Serial.begin(9600);
 
   mCalib();
