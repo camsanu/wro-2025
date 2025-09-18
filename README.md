@@ -5,9 +5,9 @@ This repository contains all engineering materials for team Wired Wizards, from 
 
 # Team Members
 * Yumian Del Mar Rodríguez Téllez
-* Ahn Salgado
-* Constanza Sandoval
-* `Coach` Leonardo Médina
+* Ahn Montserrat Salgado González
+* Constanza Sandoval Ureña
+* `Coach` Leonardo Médina Madrazo
 
 ## Content
 
