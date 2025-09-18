@@ -1,7 +1,8 @@
 #include <Servo.h>
 
-#define motFwd  4
-#define motRev  2
+#define IN2Fwd  2
+#define IN1Rev  4
+#define ENA 3
 
 // rgb red (238, 39, 55)
 // rgb green (68, 214, 44)
@@ -9,9 +10,9 @@
 
 Servo myservo;
 
-const int trigPin = 12, echoPin_f = 5, echoPin_r = 10, echoPin_l = 9; // ultrasonic pins
+const int trigPin = 12, echoPin_f = 11, echoPin_r = 10, echoPin_l = 9; // ultrasonic pins
 const int buttonPin = 8;
-const int sMin = 80, sMax = 180, sCenter = 130; // servo limits
+const int sMin = 50, sMax = 130, sCenter = 90; // servo limits
 const int threshold = 100; // distance threshold
 
 int lDistance, rDistance, fDistance;
@@ -64,18 +65,20 @@ void printDistances(){
 
 // motor control
 void fwd(){
-  digitalWrite(motFwd, HIGH); 
-  digitalWrite(motRev, LOW);
+  digitalWrite(IN2Fwd, HIGH); 
+  digitalWrite(IN1Rev, LOW);
+  analogWrite(ENA, 255); // set speed
 }
 
 void rev(){
-  digitalWrite(motFwd, LOW); 
-  digitalWrite(motRev, HIGH);
+  digitalWrite(IN2Fwd, LOW); 
+  digitalWrite(IN1Rev, HIGH);
+  analogWrite(ENA, 255); // set speed
 }
 
 void dead(){
-  digitalWrite(motFwd, LOW); 
-  digitalWrite(motRev, LOW);
+  digitalWrite(IN2Fwd, LOW); 
+  digitalWrite(IN1Rev, LOW);
 }
 
 void endP() { // route natural end
@@ -149,8 +152,9 @@ void rTurn(){ // turn right corner
 // setup function
 
 void setup() {
-  pinMode(motFwd, OUTPUT);
-  pinMode(motRev, OUTPUT);
+  pinMode(IN2Fwd, OUTPUT);
+  pinMode(IN1Rev, OUTPUT);
+  pinMode(ENA, OUTPUT);
 
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin_f, INPUT);
@@ -158,7 +162,7 @@ void setup() {
   pinMode(echoPin_l, INPUT);
   pinMode(buttonPin, INPUT_PULLUP);
 
-  myservo.attach(6);
+  myservo.attach(13);
   Serial.begin(9600);
 
   mCalib();
