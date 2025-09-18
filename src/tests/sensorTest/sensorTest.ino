@@ -1,13 +1,7 @@
-const int trigPin = 8;
-const int echoPin_1 = 6; // right sensor echo
-const int echoPin_2 = 7; // left sensor echo
-const int echoPin_3 = 9; // front sensor echo
+const int trigPin = 12, echoPin_f = 5, echoPin_r = 10, echoPin_l = 9;
+const int buttonPin = 8;
 
-const int buttonPin = 11;
-
-int fDistance; // front
-int lDistance; // left 
-int rDistance; // right
+int fDistance, rDistance, lDistance;
 
 int numReadings = 3; // number of samples before printing
 bool pushEd = false;
@@ -17,9 +11,9 @@ bool pushEd = false;
 void setup() {
   Serial.begin(9600);
   pinMode(trigPin, OUTPUT);
-  pinMode(echoPin_1, INPUT);
-  pinMode(echoPin_2, INPUT);  
-  pinMode(echoPin_3, INPUT);
+  pinMode(echoPin_f, INPUT);
+  pinMode(echoPin_r, INPUT);  
+  pinMode(echoPin_l, INPUT);
   pinMode(buttonPin, INPUT_PULLUP);
 }
 
@@ -46,9 +40,9 @@ void loop() {
     pushEd = true;
   }
   if (pushEd == true) {
-    fDistance = getDistance(echoPin_3);
-    lDistance = getDistance(echoPin_2); 
-    rDistance = getDistance(echoPin_1);
+    fDistance = getDistance(echoPin_f);
+    lDistance = getDistance(echoPin_l); 
+    rDistance = getDistance(echoPin_r);
   
     Serial.print("FLR: ");
     Serial.print(fDistance);
