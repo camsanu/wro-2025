@@ -34,7 +34,7 @@ _This part must be filled by participants with the technical clarifications abou
 | L298N Motor Driver | 1  |
 | Hobby Gearmotor  | 1  |
 | HC-SR04 Ultrasonic Sensor  | 3  |
-| Servo Motor  | 1  |
+| SG90 Micro Servo  | 1  |
 
 ## Mechanism
 For our prototype's motor, we use a DC motor gear system, the motor is connected to a differential wrist mechanism that moves the back wheels. Our front wheels don't get any direct power from the motor but instead we use proportional steering with our Servo. For this to work the sensors send a signal to the Servo that's connceted to the wheels so it can turn evenly depending on how strong the signal is. This gives smooth, precise control instead of just full left or full right steering.
