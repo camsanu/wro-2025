@@ -3,7 +3,7 @@ Engineering materials
 
 This repository contains all engineering materials for team Wired Wizards, from CETYS Universidad campus Mexicali team Sentinel Fox Engineering, compeeting on WRO Future Engineers 2025 season, soon to go to the 2025 Mexican National.
 
-# Team Members
+## Team Members
 * Yumian Del Mar Rodríguez Téllez
 * Ahn Montserrat Salgado González
 * Constanza Sandoval Ureña
