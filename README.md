@@ -22,7 +22,7 @@ This repository contains all engineering materials for team Wired Wizards, from 
 # Solution
 
 ## Mechanism
-For our prototype's motor, we used a DC motor gear system, where the motor is connected to a differential wrist mechanism that moves the back wheels. Our front wheels do not get any direct power from the motor, instead being hooked to the servo to proportionally steer the vehicle.
+For our prototype's motor, we used a DC motor gear system, where the motor is connected to a differential wrist mechanism that drives the back wheels and provides consistent, even movement. The front wheels do not receive any direct power from the motor, instead both the front wheels are hooked to the servo by a simple mechanism that we designed and 3d printed, with this we can proportionally steer the vehicle by turning both wheels at the same direction, at the same time.
 
 ## Electronic components
 
