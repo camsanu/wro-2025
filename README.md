@@ -12,8 +12,8 @@ This repository contains all engineering materials for team Wired Wizards, from 
 ## Content
 
 
-* `models:` Files used by 3D printers to produce the vehicle elements.
-* `schemes:` PDF schematic diagram illustrating all the electronic components used in the vehicle and their connections.
+`models:` Files used by 3D printers to produce the vehicle elements.
+`schemes:` PDF schematic diagram illustrating all the electronic components used in the vehicle and their connections.
 * `src:` Code of control software for all components programmed to participate in the competition.
 * `t-photos:` 2 photos of the team (an official one and one funny photo with all team members).
 * `v-photos:` 6 photos of the vehicle (from every side, top and bottom).
