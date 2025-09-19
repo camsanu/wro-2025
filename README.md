@@ -1,19 +1,19 @@
 Engineering materials
 ====
 
-This repository contains all engineering materials for team Wired Wizards, from CETYS Universidad campus Mexicali team Sentinel Fox Engineering, compeeting on WRO Future Engineers 2025 season, soon to go to the 2025 Mexican National.
+This repository contains all engineering materials for team Wired Wizards, from CETYS Universidad campus Mexicali as part of Sentinel Fox Engineering, competing on the WRO Future Engineers 2025 season, soon to go to the 2025 Mexican National.
 
 ## Team Members
 * Yumian Del Mar Rodríguez Téllez
 * Ahn Montserrat Salgado González
 * Constanza Sandoval Ureña
-* `Coach` Leonardo Médina Madrazo
+* `Coach` Leonardo Daniel Médina Madrazo
 
 ## Content
 
 
 * `models` is for the files for models used by 3D printers to produce the vehicle elements.
-* `schemes` contains a PDF schematic diagram illustrating all the electronic components and motors used in the vehicle and how they connect to each other.
+* `schemes` contains a PDF schematic diagram illustrating all the electronic components used in the vehicle and their connections.
 * `src` contains code of control software for all components which were programmed to participate in the competition.
 * `t-photos` contains 2 photos of the team (an official one and one funny photo with all team members).
 * `v-photos` contains 6 photos of the vehicle (from every side, top and bottom).
@@ -37,4 +37,4 @@ _This part must be filled by participants with the technical clarifications abou
 | SG90 Micro Servo  | 1  |
 
 ## Mechanism
-For our prototype's motor, we use a DC motor gear system, the motor is connected to a differential wrist mechanism that moves the back wheels. Our front wheels don't get any direct power from the motor but instead we use proportional steering with our Servo. For this to work the sensors send a signal to the Servo that's connceted to the wheels so it can turn evenly depending on how strong the signal is. This gives smooth, precise control instead of just full left or full right steering.
+For our prototype's motor, we used a DC motor gear system, where the motor is connected to a differential wrist mechanism that moves the back wheels. Our front wheels do not get any direct power from the motor, instead being hooked to the servo to proportionally steer the vehicle.
