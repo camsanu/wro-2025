@@ -1,37 +1,43 @@
 #include <Servo.h>
-
-#define IN2Fwd  2
-#define IN1Rev  4
-#define ENA 3
-
-// rgb red (238, 39, 55)
-// rgb green (68, 214, 44)
-// rgb mag (255, 0, 255)
-
+// servo variables and requirements
 Servo myservo;
+const int sMin = 50, sMax = 130, sCenter = 90; // limits
 
-const int trigPin = 12, echoPin_f = 5, echoPin_r = 10, echoPin_l = 9; // ultrasonic pins
-const int buttonPin = 8;
-const int sMin = 80, sMax = 180, sCenter = 130; // servo limits
-const int threshold = 100; // distance threshold
+// motor pins
+#define IN2Fwd  2 
+#define IN1Rev  4
+#define ENA 3 // set speed with PWM
 
+// ultrasonic pins and distance variables
+const int trigPin = 12, echoPin_f = 11, echoPin_r = 10, echoPin_l = 9;
 int lDistance, rDistance, fDistance;
-int corners = 0, laps = 0; // corners turned so far
+float startL, startR, startF; // initial position
+int numReadings = 3; // samples for reading averaging
+const int threshold = 100; // threshold for turning
+const float tolerance = 5.0; // tolerance for returning to initial position
+
+// button variables
+const int buttonPin = 8;
+bool pushEd = false;
+int pushEs = 0;
+bool lastState = HIGH;
+
+// pid control
+int corners = 0, laps = 0; // turned so far
 float Gp = 0.6; // proportional gain
 float Gd = 1; // derivative gain
 float Gi = 0.02; // integral gain
 static float prevError = 0;
 static float integ = 0; // store integral
 
-int numReadings = 3; // samples
+// object detection
+bool red = false;
+bool green = false;
+bool parking = false;
+int parks = 0; // parking state
 
-bool pushEd = false; // button state
-int pushEs = 0; // button state counter
-bool lastState = HIGH; // save button state
-bool red = false; // obj detection
-bool green = false; 
-
-long getDistance(int echoPin){ // distance capture function
+// distance and control functions
+long getDistance(int echoPin){ // distance capture
     long duration;
     long sum = 0;
 
@@ -54,8 +60,14 @@ void saveDistances(){
   rDistance = getDistance(echoPin_r);
 }
 
+void saveStart(){
+  startF = getDistance(echoPin_f);
+  startL = getDistance(echoPin_l); 
+  startR = getDistance(echoPin_r);
+}
+
 void printDistances(){
-  Serial.print("F "); // print to serial
+  Serial.print("F ");
   Serial.print(fDistance);
   Serial.print("; L ");
   Serial.print(lDistance);
@@ -67,13 +79,13 @@ void printDistances(){
 void fwd(){
   digitalWrite(IN2Fwd, HIGH); 
   digitalWrite(IN1Rev, LOW);
-  analogWrite(ENA, 255); // set speed
+  analogWrite(ENA, 225);
 }
 
 void rev(){
   digitalWrite(IN2Fwd, LOW); 
   digitalWrite(IN1Rev, HIGH);
-  analogWrite(ENA, 255); // set speed
+  analogWrite(ENA, 225);
 }
 
 void dead(){
@@ -81,13 +93,14 @@ void dead(){
   digitalWrite(IN1Rev, LOW);
 }
 
-void endP() { // route natural end
+void endP() { // end program
   dead();
   myservo.write(sCenter);
   Serial.println("Over");
+  for(;;);
 }
 
-void mCalib(){ // motor calibration
+void mCalib(){ // motor check
   Serial.println("Start Motor calibration");
   Serial.println("Forward check");
   fwd();
@@ -101,7 +114,7 @@ void mCalib(){ // motor calibration
   Serial.println("End of Motor calibration");
 }
 
-void sCalib(){ // servo calibration
+void sCalib(){ // servo check
   Serial.println("Servo check");
   myservo.write(180);
   delay(100);
@@ -110,10 +123,10 @@ void sCalib(){ // servo calibration
 }
 
 void lTurn(){ // turn left corner
-  static unsigned long turnStart = 0; // when the turn started
+  static unsigned long turnStart = 0;
   static bool turning = false;
   if(!turning){
-    myservo.write(0);
+    myservo.write(sMin);
     turnStart = millis();
     turning = true;
     Serial.println("Turning Left");
@@ -130,10 +143,10 @@ void lTurn(){ // turn left corner
 }
 
 void rTurn(){ // turn right corner
-  static unsigned long turnStart = 0; // when the turn started
+  static unsigned long turnStart = 0;
   static bool turning = false;
   if(!turning){
-    myservo.write(180);
+    myservo.write(sMax);
     turnStart = millis();
     turning = true;
     Serial.println("Turning Right");
@@ -149,8 +162,128 @@ void rTurn(){ // turn right corner
   }
 }
 
-// setup function
+void redTurn(){
+  static unsigned long turnStart = 0;
+  static bool turning = false;
+  if(!turning){
+    myservo.write(sMax);
+    turnStart = millis();
+    turning = true;
+    Serial.println("Avoiding Red");
+  }
 
+  if(millis() - turnStart >= 300){
+    if(rDistance < threshold){
+      myservo.write(sCenter);
+      Serial.println("Avoided Red");
+      red = false;
+    }
+    turning = false;
+  }
+}
+
+void greenTurn(){
+  static unsigned long turnStart = 0;
+  static bool turning = false;
+  if(!turning){
+    myservo.write(sMin);
+    turnStart = millis();
+    turning = true;
+    Serial.println("Avoiding Green");
+  }
+
+  if(millis() - turnStart >= 300){
+    if(lDistance < threshold){
+      myservo.write(sCenter);
+      Serial.println("Avoided Green");
+      green = false;
+    }
+    turning = false;
+  }
+}
+
+void unparkLeft(){
+  if(lDistance > rDistance){
+    myservo.write(sMin);
+    digitalWrite(IN2Fwd, HIGH); 
+    digitalWrite(IN1Rev, LOW);
+    analogWrite(ENA, 200);
+    if(fDistance <= 10){
+      dead();
+    }
+    Serial.println("Exiting Parking Stage One");
+  }
+  if(lDistance < rDistance){
+    myservo.write(sMax);
+    fwd();
+    Serial.println("Exiting Parking Stage Two");
+  }
+  if(lDistance == rDistance){
+    myservo.write(sCenter);
+  }
+}
+
+void unparkRight(){
+  if(lDistance < rDistance){
+    myservo.write(sMax);
+    digitalWrite(IN2Fwd, HIGH); 
+    digitalWrite(IN1Rev, LOW);
+    analogWrite(ENA, 200);
+    if(fDistance <= 10){
+      dead();
+    }
+    Serial.println("Exiting Parking Stage One");
+  }
+  if(lDistance > rDistance){
+    myservo.write(sMin);
+    fwd();
+    Serial.println("Exiting Parking Stage Two");
+  }
+  if(lDistance == rDistance){
+    myservo.write(sCenter);
+  }
+}
+
+void parkLeft(){
+    digitalWrite(IN2Fwd, HIGH); 
+    digitalWrite(IN1Rev, LOW);
+    analogWrite(ENA, 200);
+    if(lDistance > rDistance){
+      myservo.write(sMax);
+      if(fDistance <= 10){
+        dead();
+      }
+    }
+    if(lDistance < rDistance){
+      myservo.write(sMin);
+      if(lDistance == rDistance){
+        myservo.write(sCenter);
+        dead();
+      }
+    }
+}
+
+void parkRight(){
+  digitalWrite(IN2Fwd, HIGH); 
+  digitalWrite(IN1Rev, LOW);
+  analogWrite(ENA, 200);
+  if(lDistance > rDistance){
+    myservo.write(sMax);
+    if(fDistance <= 10){
+      dead();
+    }
+  }
+  if(lDistance < rDistance){
+    myservo.write(sMin);
+    if(lDistance == rDistance){
+      myservo.write(sCenter);
+      dead();
+    }
+  }
+}
+
+
+// setup function
 void setup() {
   pinMode(IN2Fwd, OUTPUT);
   pinMode(IN1Rev, OUTPUT);
@@ -162,16 +295,13 @@ void setup() {
   pinMode(echoPin_l, INPUT);
   pinMode(buttonPin, INPUT_PULLUP);
 
-  myservo.attach(6);
+  myservo.attach(13);
   Serial.begin(9600);
-
-  mCalib();
-  sCalib();
+  saveStart();
   dead();
 }
 
 // main loop
-
 void loop() {
   bool buttonState = digitalRead(buttonPin);
   if(lastState == HIGH && buttonState == LOW){ // save button state
@@ -187,8 +317,41 @@ void loop() {
   }
   lastState = buttonState;
 
-  if(pushEd == true){
-    fwd();
+  if(pushEd){
+    if(Serial.available() > 0){
+      char inChar = (char)Serial.read();
+      if(inChar == 'R'){
+        red = true;
+        Serial.println("R");
+      }
+      else if(inChar == 'G'){
+        green = true;
+        Serial.println("G");
+      }
+      else if(inChar == 'M'){
+        parking = true;
+        Serial.println("M");
+      }
+    }
+
+    if(parking && parks == 0){
+      parks++;
+      if(lDistance > rDistance){
+        unparkLeft();
+      } else if(rDistance > lDistance){
+        unparkRight();
+      }
+    }
+
+    if(parking && parks == 1){
+      if(lDistance > rDistance){
+        parkLeft();
+      } else if(rDistance > lDistance){
+        parkRight();
+      }
+      endP();
+    }
+    
     saveDistances();
     printDistances();
 
@@ -214,6 +377,15 @@ void loop() {
       }
     }
 
+    if(red || green){ // object detected
+      if(red){
+        redTurn();
+      }
+      else if(green){
+        greenTurn();
+      }
+    }
+
     if(fDistance < threshold && (!red && !green)){
       if(lDistance > rDistance){ // left turn
         lTurn();
@@ -231,17 +403,22 @@ void loop() {
     }
   
     if(laps==3 && (!red && !green)){
-      static unsigned long shutStart = 0; // when the shut down started
-      static bool shutting = false;
-      if(!shutting){
-        shutStart = millis();
-        shutting = true;
-        Serial.println("Shutting down");
-      }
-      if(millis() - shutStart >= 800){
-        Serial.println("Shut down complete");
-        shutting = false;
-        endP();
+      bool closeF = abs(fDistance-startF) <= tolerance;
+      bool closeL = abs(lDistance-startL) <= tolerance;
+      bool closeR = abs(rDistance-startR) <= tolerance;
+      if(closeF && closeL && closeR){
+        static unsigned long shutStart = 0; // when the shut down started
+        static bool shutting = false;
+        if(!shutting){
+          shutStart = millis();
+          shutting = true;
+          Serial.println("Shutting down");
+        }
+        if(millis() - shutStart >= 800){
+          Serial.println("Shut down complete");
+          shutting = false;
+          endP();
+        }
       }
     }
   } 
