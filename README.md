@@ -25,7 +25,7 @@ This repository contains all engineering materials for team Wired Wizards, from 
 For our prototype's motor, we used a DC motor gear system, where the motor is connected to a differential wrist mechanism that drives the back wheels and provides consistent, even movement. The front wheels do not receive any direct power from the motor, instead both the front wheels are hooked to the servo by a simple mechanism that we designed and 3d printed, with this we can proportionally steer the vehicle by turning both wheels at the same direction, at the same time.
 
 ## Electronic components
-_For a more detailed explanation on the vehicle's circuitry, see `schemes/README.md`._
+_For a more detailed explanation on the vehicle's circuitry, see `(.../schemes/README.md)`._
 | Component  | Quantity |
 | --- | --- |
 | Arduino Uno  | 1  |
