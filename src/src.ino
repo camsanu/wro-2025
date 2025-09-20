@@ -333,7 +333,7 @@ void loop() {
     }
   
     if(lDistance != rDistance && fDistance>threshold && (!red && !green)){ // check if vehicle is drifting away from center
-      float error = lDistance - rDistance; // get error margin
+      float error = rDistance - lDistance; // get error margin
       float deriv = error - prevError; // get change in error
       float servoAngle = sCenter + (Gp * error) + (Gd * deriv) + (Gi * integ); // pid control
       prevError = error;
@@ -341,13 +341,12 @@ void loop() {
       servoAngle = constrain(servoAngle, sMin, sMax); // limit angle to safe range
       integ = constrain(integ, -threshold, threshold); // limit integral windup
       if(lDistance > rDistance){ // print direction of overshoot for debugging
-        myservo.write(servoAngle);
         Serial.println("Left Overshoot");
       }
       else if(rDistance > lDistance){
-        myservo.write(servoAngle);
         Serial.println("Right Overshoot");
       }
+      myservo.write(servoAngle);
     }
 
     // obstacle detection
