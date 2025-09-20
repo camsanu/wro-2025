@@ -37,7 +37,7 @@ bool parking = false;
 int parks = 0; // parking state
 
 // distance and control functions
-long getDistance(int echoPin){ // distance capture
+long getDistance(int echoPin){ // ultrasonic distance capture
     long duration;
     long sum = 0;
 
@@ -75,17 +75,17 @@ void printDistances(){
   Serial.println(rDistance);
 }
 
-// motor control
+// motor and movement control
 void fwd(){
   digitalWrite(IN2Fwd, HIGH); 
   digitalWrite(IN1Rev, LOW);
-  analogWrite(ENA, 225);
+  analogWrite(ENA, 255);
 }
 
 void rev(){
   digitalWrite(IN2Fwd, LOW); 
   digitalWrite(IN1Rev, HIGH);
-  analogWrite(ENA, 225);
+  analogWrite(ENA, 255);
 }
 
 void dead(){
@@ -98,28 +98,6 @@ void endP() { // end program
   myservo.write(sCenter);
   Serial.println("Over");
   for(;;);
-}
-
-void mCalib(){ // motor check
-  Serial.println("Start Motor calibration");
-  Serial.println("Forward check");
-  fwd();
-  delay(100);
-  dead();
-  delay(100);
-  Serial.println("Reverse check");
-  rev();
-  delay(100);
-  dead();
-  Serial.println("End of Motor calibration");
-}
-
-void sCalib(){ // servo check
-  Serial.println("Servo check");
-  myservo.write(180);
-  delay(100);
-  myservo.write(sCenter);
-  Serial.println("End of Servo calibration"); 
 }
 
 void lTurn(){ // turn left corner
@@ -203,16 +181,15 @@ void greenTurn(){
 }
 
 void unparkLeft(){
-  if(lDistance > rDistance){
-    myservo.write(sMin);
-    digitalWrite(IN2Fwd, HIGH); 
-    digitalWrite(IN1Rev, LOW);
-    analogWrite(ENA, 200);
-    if(fDistance <= 10){
-      dead();
-    }
-    Serial.println("Exiting Parking Stage One");
+  myservo.write(sMin);
+  digitalWrite(IN2Fwd, HIGH); 
+  digitalWrite(IN1Rev, LOW);
+  analogWrite(ENA, 200);
+  if(fDistance <= 10){
+    dead();
   }
+  Serial.println("Exiting Parking Stage One");
+
   if(lDistance < rDistance){
     myservo.write(sMax);
     fwd();
@@ -224,16 +201,15 @@ void unparkLeft(){
 }
 
 void unparkRight(){
-  if(lDistance < rDistance){
-    myservo.write(sMax);
-    digitalWrite(IN2Fwd, HIGH); 
-    digitalWrite(IN1Rev, LOW);
-    analogWrite(ENA, 200);
-    if(fDistance <= 10){
-      dead();
-    }
-    Serial.println("Exiting Parking Stage One");
+  myservo.write(sMax);
+  digitalWrite(IN2Fwd, HIGH); 
+  digitalWrite(IN1Rev, LOW);
+  analogWrite(ENA, 200);
+  if(fDistance <= 10){
+    dead();
   }
+  Serial.println("Exiting Parking Stage One");
+  
   if(lDistance > rDistance){
     myservo.write(sMin);
     fwd();
@@ -248,11 +224,9 @@ void parkLeft(){
     digitalWrite(IN2Fwd, HIGH); 
     digitalWrite(IN1Rev, LOW);
     analogWrite(ENA, 200);
-    if(lDistance > rDistance){
-      myservo.write(sMax);
-      if(fDistance <= 10){
-        dead();
-      }
+    myservo.write(sMax);
+    if(fDistance <= 10){
+      dead();
     }
     if(lDistance < rDistance){
       myservo.write(sMin);
@@ -267,11 +241,9 @@ void parkRight(){
   digitalWrite(IN2Fwd, HIGH); 
   digitalWrite(IN1Rev, LOW);
   analogWrite(ENA, 200);
-  if(lDistance > rDistance){
-    myservo.write(sMax);
-    if(fDistance <= 10){
-      dead();
-    }
+  myservo.write(sMax);
+  if(fDistance <= 10){
+    dead();
   }
   if(lDistance < rDistance){
     myservo.write(sMin);
@@ -295,7 +267,7 @@ void setup() {
   pinMode(echoPin_l, INPUT);
   pinMode(buttonPin, INPUT_PULLUP);
 
-  myservo.attach(13);
+  myservo.attach(6);
   Serial.begin(9600);
   saveStart();
   dead();
@@ -352,6 +324,7 @@ void loop() {
       endP();
     }
     
+    fwd();
     saveDistances();
     printDistances();
 
